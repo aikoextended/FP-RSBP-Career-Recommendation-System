@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 def load_and_prepare_model():
     # Load the dataset
-    dataset = pd.read_csv(r'C:\Users\User_\OneDrive\Documents\RSBP\sample_data\dataset9000.csv')
+    dataset = pd.read_csv(r'C:\Users\Lenovo\Documents\FP-RSBP\sample_data\dataset9000.csv')
 
     # Handle missing values
     dataset['Graphics Designing'].fillna('Not Interested', inplace=True)
@@ -71,7 +71,7 @@ def main():
     # Create input fields
     st.header('Enter Your Skills Level')
     user_input = {}
-    skill_levels = ['Not Interested', 'Beginner', 'Average', 'Intermediate', 'Excellent', 'Professional']
+    skill_levels = ['Not Interested', 'Poor', 'Beginner', 'Average', 'Intermediate', 'Excellent', 'Professional']
 
     for column in X.columns:
         user_input[column] = st.selectbox(
@@ -97,3 +97,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
