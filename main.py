@@ -5,7 +5,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
-
 def load_and_prepare_model():
     # Load the dataset
     dataset = pd.read_csv(r'C:\Users\Lenovo\Documents\FP-RSBP\sample_data\dataset9000.csv')
@@ -38,7 +37,6 @@ def load_and_prepare_model():
 
     return model, label_encoders, X, accuracy
 
-
 def predict_top_roles(model, label_encoders, X, user_input):
     # Encode input
     encoded_input = {}
@@ -58,7 +56,6 @@ def predict_top_roles(model, label_encoders, X, user_input):
 
     return top_roles, top_probabilities
 
-
 def main():
     st.title('Career Recommendation System')
 
@@ -68,33 +65,48 @@ def main():
     # Display model accuracy
     st.sidebar.info(f'Model Accuracy: {accuracy}%')
 
-    # Create input fields
-    st.header('Enter Your Skills Level')
-    user_input = {}
-    skill_levels = ['Not Interested', 'Poor', 'Beginner', 'Average', 'Intermediate', 'Excellent', 'Professional']
+    # Initialize session state variables
+    if 'page' not in st.session_state:
+        st.session_state['page'] = 'start'
+    if 'user_input' not in st.session_state:
+        st.session_state['user_input'] = {}
 
-    for column in X.columns:
-        user_input[column] = st.selectbox(
-            f'Select your level for {column}',
-            skill_levels,
-            key=column
-        )
+    # Start page
+    if st.session_state['page'] == 'start':
+        if st.button('Start'):
+            st.session_state['page'] = 'form'
 
-    # Predict button
-    if st.button('Get Career Recommendations'):
+    # Form page
+    if st.session_state['page'] == 'form':
+        st.header('Enter Your Skills Level')
+        skill_levels = ['Not Interested', 'Poor', 'Beginner', 'Average', 'Intermediate', 'Excellent', 'Professional']
+
+        for column in X.columns:
+            st.session_state['user_input'][column] = st.selectbox(
+                f'Select your level for {column}',
+                skill_levels,
+                key=column
+            )
+
+        if st.button('Get Career Recommendations'):
+            st.session_state['page'] = 'results'
+
+    # Results page
+    if st.session_state['page'] == 'results':
+        st.header('Top Career Recommendations')
         try:
-            # Get top role predictions
+            user_input = st.session_state['user_input']
             top_roles, top_probabilities = predict_top_roles(model, label_encoders, X, user_input)
-
-            # Display recommendations
-            st.header('Top Career Recommendations')
             for role, prob in zip(top_roles, top_probabilities):
-                st.metric(label=role, value=f'{prob * 100:.2f}%')
+                st.progress(float(prob))
+                st.text(f'{role}: {prob * 100:.2f}%')
 
         except Exception as e:
-            st.error(f'An error occurred: {e}')
+            st.error(f'An error occurred while displaying results: {e}')
 
+        if st.button('Restart'):
+            st.session_state['page'] = 'start'
+            st.session_state['user_input'] = {}
 
 if __name__ == '__main__':
     main()
-    
